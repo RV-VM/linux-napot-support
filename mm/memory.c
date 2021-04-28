@@ -82,6 +82,7 @@
 #include <linux/uaccess.h>
 #include <asm/tlb.h>
 #include <asm/tlbflush.h>
+#include <asm/napot.h>
 
 #include "pgalloc-track.h"
 #include "internal.h"
@@ -4312,7 +4313,9 @@ static vm_fault_t handle_pte_fault(struct vm_fault *vmf)
 	}
 
 	if (!vmf->pte) {
-		if (vma_is_anonymous(vmf->vma))
+		if (vma_use_napot(vmf->vma))
+			return do_anonymous_napot_pages(vmf);
+		else if (vma_is_anonymous(vmf->vma))
 			return do_anonymous_page(vmf);
 		else
 			return do_fault(vmf);
