@@ -200,6 +200,7 @@ static inline bool access_error(unsigned long cause, struct vm_area_struct *vma)
  */
 asmlinkage void do_page_fault(struct pt_regs *regs)
 {
+	pr_info("a pgfault\n");
 	struct task_struct *tsk;
 	struct vm_area_struct *vma;
 	struct mm_struct *mm;

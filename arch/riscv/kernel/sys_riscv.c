@@ -6,6 +6,7 @@
  */
 
 #include <linux/syscalls.h>
+#include <linux/printk.h>
 #include <asm/unistd.h>
 #include <asm/cacheflush.h>
 #include <asm-generic/mman-common.h>
@@ -15,6 +16,7 @@ static long riscv_sys_mmap(unsigned long addr, unsigned long len,
 			   unsigned long fd, off_t offset,
 			   unsigned long page_shift_offset)
 {
+	pr_info("panpan: here a mmmap syscall\n");
 	if (unlikely(offset & (~PAGE_MASK >> page_shift_offset)))
 		return -EINVAL;
 

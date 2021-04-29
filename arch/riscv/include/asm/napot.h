@@ -1,13 +1,22 @@
+#ifndef _ASM_NAPOT_H
+#define _ASM_NAPOT_H
+
 #include <linux/mm_types.h>
 #include <linux/gfp.h>
 #include <linux/highmem.h>
 #include <linux/mm.h>
 #include <linux/printk.h>
 
+#define NAPOT_PAGE_SIZE(x) (1 << (PAGE_SHIFT + x))
+#define NAPOT_MASK(x) (~(NAPOT_PAGE_SIZE(x) - 1))
+
 /* check whether the vma is managed with napot */
-bool vma_use_napot(struct vm_area_struct *vma)
+static inline bool vma_use_napot(struct vm_area_struct *vma)
 {
-	return false;
+	bool ret = vma->vm_flags & VM_NAPOT_64K;
+	if(ret)
+		pr_info("check napot: vm_flags = 0x%lx", vma->vm_flags);
+	return ret;
 }
 
 static inline struct page *
@@ -36,7 +45,9 @@ static vm_fault_t do_anonymous_napot_pages(struct vm_fault *vmf)
 	pte_t entry;
 	unsigned long start_addr, end_addr;
 	unsigned int order = 0;
-	unsigned int napot_shift;
+
+	pr_info("need to solve napot ptes, addr = 0x%lx \n", vmf->address);
+	pr_info("region of vma is [%lx, %lx] \n", vma->vm_start, vma->vm_end);
 
 	if (pte_alloc(vma->vm_mm, vmf->pmd))
 		return VM_FAULT_OOM;
@@ -46,9 +57,9 @@ static vm_fault_t do_anonymous_napot_pages(struct vm_fault *vmf)
 		goto oom;
 	// TODO check order
 	order = 4;
-	napot_shift = PAGE_SHIFT + order;
-	start_addr = (vmf->address >> napot_shift) << napot_shift;
-	end_addr = start_addr + (1 << napot_shift);
+	start_addr = vmf->address & NAPOT_MASK(order);
+	end_addr = start_addr + NAPOT_PAGE_SIZE(order);
+	pr_info("start_add = 0x%lx, end_addr = 0x%lx \n", start_addr, end_addr);
 	page = __alloc_zeroed_compound_user_highpage(vma, start_addr, order);
 	if(!page)
 		goto oom;
@@ -82,3 +93,5 @@ oom_free_page:
 oom:
 	return VM_FAULT_OOM;
 }
+
+#endif
