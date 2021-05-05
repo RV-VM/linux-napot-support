@@ -67,7 +67,8 @@ static vm_fault_t do_anonymous_napot_pages(struct vm_fault *vmf)
 	if (mem_cgroup_charge(page, vma->vm_mm, GFP_KERNEL))
 		goto oom_free_page;
 
-	entry = mk_pte(page, vma->vm_page_prot);
+	entry = pte_mknapot(mk_pte(page, vma->vm_page_prot), 4);
+	pr_info("after mknapot pte is 0x%lx \n", pte_val(entry));
 	if (vma->vm_flags & VM_WRITE)
 		entry = pte_mkwrite(pte_mkdirty(entry));
 
