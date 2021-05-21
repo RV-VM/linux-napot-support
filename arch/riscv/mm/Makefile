@@ -8,6 +8,7 @@ endif
 
 KCOV_INSTRUMENT_init.o := n
 
+obj-y += page_ops.o
 obj-y += init.o
 obj-y += extable.o
 obj-$(CONFIG_MMU) += fault.o pageattr.o
@@ -27,3 +28,5 @@ KASAN_SANITIZE_init.o := n
 endif
 
 obj-$(CONFIG_DEBUG_VIRTUAL) += physaddr.o
+
+obj-$(CONFIG_NAPOT_SUPPORT) += napot.o
