@@ -98,6 +98,10 @@ config RISCV
 	select THREAD_INFO_IN_TASK
 	select UACCESS_MEMCPY if !MMU
 
+config NAPOT_SUPPORT
+	def_bool y
+	depends on 64BIT
+
 config ARCH_MMAP_RND_BITS_MIN
 	default 18 if 64BIT
 	default 8

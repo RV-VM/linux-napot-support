@@ -20,18 +20,17 @@ static inline bool vma_use_napot(struct vm_area_struct *vma)
 }
 
 static inline struct page *
-__alloc_zeroed_compound_user_highpage(struct vm_area_struct *vma,
+alloc_napot_zeroed_user_hpage(struct vm_area_struct *vma,
 					unsigned long vaddr, unsigned int order)
 {
+	void *addr;
 	struct page *page = alloc_pages(GFP_HIGHUSER | __GFP_COMP, order);
-	unsigned long i;
 	if(!page)
 		goto out;
-	for(i = 0; i < compound_nr(page); ++i) {
-		struct page *p = page + i;
-		clear_user_highpage(p, vaddr);
-	}
-	i = 0;
+
+	addr = kmap_atomic(page);
+	memset(addr, 0, PAGE_SIZE * compound_nr(page));
+	kunmap_atomic(addr);
 
 out:
 	return page;
@@ -46,6 +45,9 @@ static vm_fault_t do_anonymous_napot_pages(struct vm_fault *vmf)
 	unsigned long start_addr, end_addr;
 	unsigned int order = 0;
 
+#ifdef CONFIG_NAPOT_SUPPORT
+	pr_info("hey!, napot support is opened\n");
+#endif
 	pr_info("need to solve napot ptes, addr = 0x%lx \n", vmf->address);
 	pr_info("region of vma is [%lx, %lx] \n", vma->vm_start, vma->vm_end);
 
@@ -60,7 +62,7 @@ static vm_fault_t do_anonymous_napot_pages(struct vm_fault *vmf)
 	start_addr = vmf->address & NAPOT_MASK(order);
 	end_addr = start_addr + NAPOT_PAGE_SIZE(order);
 	pr_info("start_add = 0x%lx, end_addr = 0x%lx \n", start_addr, end_addr);
-	page = __alloc_zeroed_compound_user_highpage(vma, start_addr, order);
+	page = alloc_napot_zeroed_user_hpage(vma, start_addr, order);
 	if(!page)
 		goto oom;
 
