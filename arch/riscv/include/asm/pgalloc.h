@@ -68,4 +68,26 @@ do {                                    \
 } while (0)
 #endif /* CONFIG_MMU */
 
+#ifdef CONFIG_NAPOT_SUPPORT
+static inline struct page *riscv_alloc_page_vma
+	(gfp_t gfp_mask, struct vm_area_struct *vma, unsigned long addr)
+{
+	return alloc_pages_vma(gfp_mask | __GFP_COMP, get_napot_order(vma), vma, addr, numa_node_id(), false);
+}
+#undef alloc_page_vma
+#define alloc_page_vma riscv_alloc_page_vma
+
+static inline void copy_user_highpage(struct page *to, struct page *from,
+	unsigned long vaddr, struct vm_area_struct *vma)
+{
+	char *vfrom, *vto;
+
+	vfrom = kmap_atomic(from);
+	vto = kmap_atomic(to);
+	memcpy(vto, vfrom, page_size(to));
+	kunmap_atomic(vto);
+	kunmap_atomic(vfrom);
+}
+#endif
+
 #endif /* _ASM_RISCV_PGALLOC_H */

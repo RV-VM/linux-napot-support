@@ -24,10 +24,6 @@
 #define _PAGE_DIRTY     (1 << 7)    /* Set by hardware on any write */
 #define _PAGE_SOFT      (1 << 8)    /* Reserved for software */
 
-#ifdef CONFIG_64BIT
-#define _PAGE_NAPOT     (1UL << 62)
-#endif
-
 #define _PAGE_SPECIAL   _PAGE_SOFT
 #define _PAGE_TABLE     _PAGE_PRESENT
 
@@ -38,6 +34,23 @@
 #define _PAGE_PROT_NONE _PAGE_READ
 
 #define _PAGE_PFN_SHIFT 10
+#ifdef CONFIG_NAPOT_SUPPORT
+#define _PAGE_RESERVED_0 (1UL << 54)
+#define _PAGE_RESERVED_1 (1UL << 55)
+#define _PAGE_RESERVED_2 (1UL << 56)
+#define _PAGE_RESERVED_3 (1UL << 57)
+#define _PAGE_RESERVED_4 (1UL << 58)
+#define _PAGE_RESERVED_5 (1UL << 59)
+#define _PAGE_RESERVED_6 (1UL << 60)
+#define _PAGE_RESERVED_7 (1UL << 61)
+#define _PAGE_NAPOT_SHIFT 62
+#define _PAGE_NAPOT      (1UL << _PAGE_NAPOT_SHIFT)
+#define _PAGE_CUSTOM     (1UL << 63)
+#define _PAGE_PFN_MASK   (_PAGE_RESERVED_0 - (1UL << _PAGE_PFN_SHIFT))
+#define __NAPOT_BIT_TO_BOOL(x) (((x & _PAGE_NAPOT) >> _PAGE_NAPOT_SHIFT) & 1UL)
+#else
+#define _PAGE_PFN_MASK   ~((1UL << _PAGE_PFN_SHIFT) - 1UL)
+#endif
 
 /* Set of bits to preserve across pte_modify() */
 #define _PAGE_CHG_MASK  (~(unsigned long)(_PAGE_PRESENT | _PAGE_READ |	\

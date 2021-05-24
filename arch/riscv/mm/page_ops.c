@@ -13,17 +13,17 @@ void clear_user_highpage(struct page *page, unsigned long vaddr)
 }
 
 struct page *
-riscv_alloc_pages_vma(gfp_t movableflags,
+riscv_alloc_zeroed_highpage(gfp_t movableflags,
 			struct vm_area_struct *vma,
 			unsigned long vaddr)
 {
 	unsigned int order = 0;
 	struct page *page = NULL;
 #ifdef CONFIG_NAPOT_SUPPORT
-	/*pr_info("%lx \n", vma->vm_flags);*/
-	if (vma_use_napot(vma))
+	if (vma_use_napot(vma)) {
 		order = get_napot_order(vma);
-	/*pr_info("riscv_alloc_pages_vma order is %d \n", order);*/
+		movableflags |= __GFP_COMP;
+	}
 #endif
 	page = alloc_pages_vma(GFP_HIGHUSER | movableflags,
 			order, vma, vaddr, numa_node_id(), false);

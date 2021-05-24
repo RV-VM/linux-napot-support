@@ -53,10 +53,10 @@ void flush_icache_mm(struct mm_struct *mm, bool local);
 void clear_user_highpage(struct page *page, unsigned long vaddr);
 #define clear_user_highpage clear_user_highpage
 
-struct page * riscv_alloc_pages_vma(gfp_t movableflags,
+struct page * riscv_alloc_zeroed_highpage(gfp_t movableflags,
 			struct vm_area_struct *vma,
 			unsigned long vaddr);
-#define __alloc_zeroed_user_highpage riscv_alloc_pages_vma
+#define __alloc_zeroed_user_highpage riscv_alloc_zeroed_highpage
 #define __HAVE_ARCH_ALLOC_ZEROED_USER_HIGHPAGE
 
 #endif /* _ASM_RISCV_CACHEFLUSH_H */

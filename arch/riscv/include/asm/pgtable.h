@@ -17,6 +17,7 @@
 #include <asm-generic/pgtable-nopud.h>
 #include <asm/page.h>
 #include <asm/tlbflush.h>
+#include <asm/napot.h>
 #include <linux/mm_types.h>
 
 #ifdef CONFIG_MMU
@@ -194,7 +195,12 @@ static inline pte_t pmd_pte(pmd_t pmd)
 /* Yields the page frame number (PFN) of a page table entry */
 static inline unsigned long pte_pfn(pte_t pte)
 {
+#ifdef CONFIG_NAPOT_SUPPORT
+	unsigned long temp_pfn = (pte_val(pte) & _PAGE_PFN_MASK) >> _PAGE_PFN_SHIFT;
+	return (temp_pfn & (temp_pfn - __NAPOT_BIT_TO_BOOL(pte_val(pte))));
+#else
 	return (pte_val(pte) >> _PAGE_PFN_SHIFT);
+#endif
 }
 
 #define pte_page(x)     pfn_to_page(pte_pfn(x))
@@ -361,13 +367,40 @@ static inline void set_pte(pte_t *ptep, pte_t pteval)
 
 void flush_icache_pte(pte_t pte);
 
+extern struct vm_area_struct * find_vma(struct mm_struct * mm, unsigned long addr);
 static inline void set_pte_at(struct mm_struct *mm,
 	unsigned long addr, pte_t *ptep, pte_t pteval)
 {
+#ifdef CONFIG_NAPOT_SUPPORT
+	pte_t *pte_end;
+	struct vm_area_struct *vma = find_vma(mm, addr);
+	unsigned int order = get_napot_order(vma);
+	unsigned long size = sizeof(pte_t) << order;
+
+	if (pte_none(pteval) || !vma || !vma_use_napot(vma)) {
+		goto no_napot;
+	}
+	pteval = pte_mknapot(pteval, order);
+
+	pte_end = (pte_t *)_ALIGN_UP((unsigned long)ptep + 1, size);
+	ptep = (pte_t *)_ALIGN_DOWN((unsigned long)ptep, size);
+
+	for (; ptep < pte_end; ptep++)
+		set_pte(ptep, pteval);
+	return;
+
+no_napot:
 	if (pte_present(pteval) && pte_exec(pteval))
 		flush_icache_pte(pteval);
 
 	set_pte(ptep, pteval);
+#else
+
+	if (pte_present(pteval) && pte_exec(pteval))
+		flush_icache_pte(pteval);
+
+	set_pte(ptep, pteval);
+#endif
 }
 
 static inline void pte_clear(struct mm_struct *mm,

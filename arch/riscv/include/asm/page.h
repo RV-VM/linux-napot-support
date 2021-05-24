@@ -142,4 +142,6 @@ extern phys_addr_t __phys_addr_symbol(unsigned long x);
 #include <asm-generic/memory_model.h>
 #include <asm-generic/getorder.h>
 
+#define __HAVE_ARCH_COPY_USER_HIGHPAGE
+
 #endif /* _ASM_RISCV_PAGE_H */

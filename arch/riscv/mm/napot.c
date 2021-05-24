@@ -63,6 +63,7 @@ oom:
 
 vm_fault_t do_napot_pages(struct vm_fault *vmf)
 {
+	pte_t entry = vmf->orig_pte;
 	if (!vmf->pte) {
 		return do_anonymous_napot_pages(vmf);
 	/*else if(vmf->flags & FAULT_FLAG_WRITE) {*/

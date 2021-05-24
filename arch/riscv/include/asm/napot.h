@@ -2,7 +2,9 @@
 #define _ASM_NAPOT_H
 
 #include <linux/mm_types.h>
-#include <linux/mm.h>
+
+#define VM_NAPOT_SHIFT 30
+#define VM_NAPOT_64K 0x100000000
 
 #define NAPOT_PAGE_SIZE(x) (1 << (PAGE_SHIFT + x))
 #define NAPOT_MASK(x) (~(NAPOT_PAGE_SIZE(x) - 1))
