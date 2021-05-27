@@ -33,3 +33,9 @@ riscv_alloc_zeroed_highpage(gfp_t movableflags,
 
 	return page;
 }
+
+bool vma_use_napot(struct vm_area_struct *vma)
+{
+	bool ret = vma->vm_flags & VM_NAPOT_64K;
+	return ret;
+}

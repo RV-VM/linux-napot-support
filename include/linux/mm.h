@@ -358,6 +358,10 @@ extern unsigned int kobjsize(const void *objp);
 # define VM_MTE_ALLOWED	VM_NONE
 #endif
 
+#if defined(CONFIG_NAPOT_SUPPORT) /* Use riscv napot extension*/
+#define VM_NAPOT_64K VM_HIGH_ARCH_0
+#endif
+
 #ifndef VM_GROWSUP
 # define VM_GROWSUP	VM_NONE
 #endif

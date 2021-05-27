@@ -52,7 +52,6 @@
 #include <asm/cacheflush.h>
 #include <asm/tlb.h>
 #include <asm/mmu_context.h>
-#include <asm/napot.h>
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/mmap.h>
@@ -1448,8 +1447,6 @@ unsigned long do_mmap(struct file *file, unsigned long addr,
 	 * that it represents a valid section of the address space.
 	 */
 	addr = get_unmapped_area(file, addr, len, pgoff, flags);
-	// TODO for napot, we need the addr aligned with napot size.
-	pr_info("do_mmap: addr = %lx", addr);
 	if (IS_ERR_VALUE(addr))
 		return addr;
 
@@ -1565,11 +1562,6 @@ unsigned long do_mmap(struct file *file, unsigned long addr,
 		default:
 			return -EINVAL;
 		}
-	}
-
-	if ((flags >> MAP_HUGE_SHIFT) & MAP_HUGE_MASK) {
-		pr_info("a napot mmap request\n");
-		vm_flags |= VM_NAPOT_64K;
 	}
 
 	/*
