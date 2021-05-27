@@ -373,10 +373,16 @@ static inline void set_pte_at(struct mm_struct *mm,
 {
 #ifdef CONFIG_NAPOT_SUPPORT
 	pte_t *pte_end;
-	struct vm_area_struct *vma = find_vma(mm, addr);
-	unsigned int order = get_napot_order(vma);
-	unsigned long size = sizeof(pte_t) << order;
+	struct vm_area_struct *vma;
+	unsigned int order;
+	unsigned long size;
 
+	if (pte_same(*ptep, pteval))
+		return;
+
+	vma = find_vma(mm, addr);
+	order = get_napot_order(vma);
+	size = sizeof(pte_t) << order;
 	if (pte_none(pteval) || !vma || !vma_use_napot(vma)) {
 		goto no_napot;
 	}
