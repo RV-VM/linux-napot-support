@@ -224,7 +224,16 @@ static void __init create_pte_mapping(pte_t *ptep,
 {
 	uintptr_t pte_idx = pte_index(va);
 
-	BUG_ON(sz != PAGE_SIZE);
+	BUG_ON(sz != _NAPOT_CONT_SIZE && sz != PAGE_SIZE);
+	if (sz == _NAPOT_CONT_SIZE) {
+		unsigned int order = 4; // FIXME
+		do {
+			ptep[pte_idx] = pte_mknapot(pfn_pte(PFN_DOWN(pa), prot), order);
+			pte_idx++;
+			sz -= PAGE_SIZE;
+		} while(sz > 0);
+		return;
+	}
 
 	if (pte_none(ptep[pte_idx]))
 		ptep[pte_idx] = pfn_pte(PFN_DOWN(pa), prot);
@@ -347,10 +356,13 @@ void __init create_pgd_mapping(pgd_t *pgdp,
 static uintptr_t __init best_map_size(phys_addr_t base, phys_addr_t size)
 {
 	/* Upgrade to PMD_SIZE mappings whenever possible */
-	if ((base & (PMD_SIZE - 1)) || (size & (PMD_SIZE - 1)))
-		return PAGE_SIZE;
+	if (!((base | size) & (PMD_SIZE - 1)))
+		return PMD_SIZE;
 
-	return PMD_SIZE;
+	if (!((base | size) & (_NAPOT_CONT_SIZE - 1)))
+		return _NAPOT_CONT_SIZE;
+
+	return PAGE_SIZE;
 }
 
 /*
