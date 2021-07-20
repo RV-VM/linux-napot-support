@@ -248,6 +248,15 @@ static inline int pte_special(pte_t pte)
 	return pte_val(pte) & _PAGE_SPECIAL;
 }
 
+static inline pte_t pte_mknapot(pte_t pte, unsigned int order)
+{
+    unsigned long napot_bits = (1UL << (order - 1)) << _PAGE_PFN_SHIFT;
+    unsigned long lower_prot = pte_val(pte) & ((1UL << _PAGE_PFN_SHIFT) - 1UL);
+    unsigned long upper_prot = (pte_val(pte) >> _PAGE_PFN_SHIFT) << _PAGE_PFN_SHIFT;
+    return __pte(upper_prot | napot_bits | lower_prot | _PAGE_NAPOT);
+}
+
+
 /* static inline pte_t pte_rdprotect(pte_t pte) */
 
 static inline pte_t pte_wrprotect(pte_t pte)

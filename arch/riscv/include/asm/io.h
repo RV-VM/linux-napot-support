@@ -146,6 +146,14 @@ __io_writes_outs(outs, u64, q, __io_pbr(), __io_paw())
 #define outsq(addr, buffer, count) __outsq((void __iomem *)addr, buffer, count)
 #endif
 
+extern void iounmap(volatile void __iomem *addr);
+extern void __iomem *__ioremap(phys_addr_t addr, size_t size, unsigned long prot);
+static inline void __iomem *ioremap(phys_addr_t addr, size_t size)
+{
+	/* _PAGE_IOREMAP needs to be supplied by the architecture */
+	return __ioremap(addr, size, _PAGE_IOREMAP);
+}
+
 #include <asm-generic/io.h>
 
 #endif /* _ASM_RISCV_IO_H */

@@ -34,6 +34,11 @@
 #define _PAGE_PROT_NONE _PAGE_READ
 
 #define _PAGE_PFN_SHIFT 10
+#define _PAGE_NAPOT_SHIFT 62
+#define _NAPOT_CONT_SHIFT (16UL + PAGE_SHIFT)
+#define _NAPOT_CONT_SIZE (0x1UL << _NAPOT_CONT_SHIFT)/* set default size as 64KB*/
+#define _NAPOT_CONT_MASK (_NAPOT_CONT_SIZE - 1UL)
+#define _PAGE_NAPOT      (1UL << _PAGE_NAPOT_SHIFT)
 
 /* Set of bits to preserve across pte_modify() */
 #define _PAGE_CHG_MASK  (~(unsigned long)(_PAGE_PRESENT | _PAGE_READ |	\
