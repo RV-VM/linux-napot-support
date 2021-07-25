@@ -7,10 +7,10 @@ void napot_modify(unsigned long vaddr, size_t size)
 	pte_t *ptep, *next;
 	pte_t old_pte,new_pte;
 	unsigned long end = vaddr + size;
-	size_t napot_batch = _NAPOT_CONT_SIZE;
+	size_t napot_batch = NAPOT_CONT64KB_SIZE;
 	if (size >= PMD_SIZE)
 		return;
-	if (size & _NAPOT_CONT_MASK)
+	if (size & NAPOT_CONT64KB_MASK)
 		return;
 
 	pmdp = pmd_off(&init_mm, vaddr);
