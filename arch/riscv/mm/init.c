@@ -847,6 +847,8 @@ asmlinkage void __init setup_vm(uintptr_t dtb_pa)
 {
 	pmd_t __maybe_unused fix_bmap_spmd, fix_bmap_epmd;
 
+	apply_errata_setup_vm();
+
 	kernel_map.virt_addr = KERNEL_LINK_ADDR;
 	kernel_map.page_offset = _AC(CONFIG_PAGE_OFFSET, UL);
 
