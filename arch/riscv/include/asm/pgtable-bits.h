@@ -62,7 +62,7 @@
 #define NAPOT_CONT64KB_MASK (NAPOT_CONT64KB_SIZE - 1)
 #define NAPOT_64KB_PTE_NUM (1UL << 4UL)
 #define _PAGE_NAPOT      (1UL << _PAGE_NAPOT_SHIFT)
-#define NAPOT_64KB_MASK (15UL << _PAGE_PFN_SHIFT)
+#define NAPOT_64KB_MASK (7UL << _PAGE_PFN_SHIFT)
 
 /* Set of bits to preserve across pte_modify() */
 #define _PAGE_CHG_MASK  (~(unsigned long)(_PAGE_PRESENT | _PAGE_READ |	\
