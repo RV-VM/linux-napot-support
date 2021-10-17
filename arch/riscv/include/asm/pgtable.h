@@ -251,7 +251,11 @@ static inline pte_t pud_pte(pud_t pud)
 /* Yields the page frame number (PFN) of a page table entry */
 static inline unsigned long pte_pfn(pte_t pte)
 {
-	return (pte_val(pte) >> _PAGE_PFN_SHIFT);
+	unsigned long val  = pte_val(pte);
+	unsigned long is_napot = val >> _PAGE_NAPOT_SHIFT;
+	unsigned long pfn_field = (val & _PAGE_PFN_MASK) >> _PAGE_PFN_SHIFT;
+	unsigned long res = (pfn_field - is_napot) & pfn_field;
+	return res;
 }
 
 #define pte_page(x)     pfn_to_page(pte_pfn(x))
@@ -303,6 +307,23 @@ static inline int pte_special(pte_t pte)
 {
 	return pte_val(pte) & _PAGE_SPECIAL;
 }
+
+static inline unsigned long pte_napot(pte_t pte)
+{
+	return pte_val(pte) & _PAGE_NAPOT;
+}
+
+static inline pte_t pte_mknapot(pte_t pte, unsigned int order)
+{
+	unsigned long napot_bits = (1UL << (order - 1)) << _PAGE_PFN_SHIFT;
+	unsigned long lower_prot =
+		pte_val(pte) & ((1UL << _PAGE_PFN_SHIFT) - 1UL);
+	unsigned long upper_prot = (pte_val(pte) >> _PAGE_PFN_SHIFT)
+				   << _PAGE_PFN_SHIFT;
+
+	return __pte(upper_prot | napot_bits | lower_prot | _PAGE_NAPOT);
+}
+
 
 /* static inline pte_t pte_rdprotect(pte_t pte) */
 
