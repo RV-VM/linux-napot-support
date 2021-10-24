@@ -321,8 +321,15 @@ static void __init create_pte_mapping(pte_t *ptep,
 		ptep[pte_idx] = pfn_pte(PFN_DOWN(pa), prot);
 }
 
-#ifndef __PAGETABLE_PMD_FOLDED
-
+#ifdef __PAGETABLE_PMD_FOLDED /* Sv32 */
+#define pgd_next_t		pte_t
+#define alloc_pgd_next(__va)	pt_ops.alloc_pte(__va)
+#define get_pgd_next_virt(__pa)	pt_ops.get_pte_virt(__pa)
+#define create_pgd_next_mapping(__nextp, __va, __pa, __sz, __prot)	\
+	create_pte_mapping(__nextp, __va, __pa, __sz, __prot)
+#define fixmap_pgd_next		fixmap_pte
+#define create_pmd_mapping(__pmdp, __va, __pa, __sz, __prot)
+#elif defined __PAGETABLE_PUD_FOLDED /* Sv39 */
 static pmd_t trampoline_pmd[PTRS_PER_PMD] __page_aligned_bss;
 static pmd_t fixmap_pmd[PTRS_PER_PMD] __page_aligned_bss;
 static pmd_t early_pmd[PTRS_PER_PMD] __initdata __aligned(PAGE_SIZE);
@@ -404,14 +411,16 @@ static void __init create_pmd_mapping(pmd_t *pmdp,
 #define create_pgd_next_mapping(__nextp, __va, __pa, __sz, __prot)	\
 	create_pmd_mapping(__nextp, __va, __pa, __sz, __prot)
 #define fixmap_pgd_next		fixmap_pmd
-#else
-#define pgd_next_t		pte_t
-#define alloc_pgd_next(__va)	pt_ops.alloc_pte(__va)
-#define get_pgd_next_virt(__pa)	pt_ops.get_pte_virt(__pa)
-#define create_pgd_next_mapping(__nextp, __va, __pa, __sz, __prot)	\
-	create_pte_mapping(__nextp, __va, __pa, __sz, __prot)
-#define fixmap_pgd_next		fixmap_pte
-#define create_pmd_mapping(__pmdp, __va, __pa, __sz, __prot)
+#elif defined __PAGETABLE_P4D_FOLDED /* Sv48 */
+#error "Sv48 is not supported now"
+#else /* Sv57 */
+#define pgd_next_t		p4d_t
+#define alloc_pgd_next(__va)	pt_ops.alloc_p4d(__va)
+#define get_pgd_next_virt(__pa)	pt_ops.get_p4d_virt(__pa)
+#define create_pgd_next_mapping(__nextp, __va, __pa, __sz, __prot)	\*/
+	create_p4d_mapping(__nextp, __va, __pa, __sz, __prot)
+#define fixmap_pgd_next		fixmap_p4d
+#error "Sv57 is not supported now"
 #endif
 
 void __init create_pgd_mapping(pgd_t *pgdp,
