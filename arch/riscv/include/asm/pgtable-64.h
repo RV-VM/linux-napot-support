@@ -45,7 +45,7 @@ static inline struct page *pgd_page(pgd_t pgd)
 
 static inline p4d_t *pgd_pgtable(pgd_t pgd)
 {
-	return (p4d_t *)pfn_to_page(pgd_val(pgd) >> _PAGE_PFN_SHIFT);
+	return (p4d_t *)pfn_to_virt(pgd_val(pgd) >> _PAGE_PFN_SHIFT);
 }
 
 #define p4d_ERROR(p4d)				\
