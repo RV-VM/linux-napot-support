@@ -8,7 +8,7 @@
 
 #include <linux/const.h>
 
-#if CONFIG_PGTABLE_LEVELS > 2
+#if CONFIG_PGTABLE_LEVELS > 3
 typedef struct {
 	unsigned long p4d;
 } p4d_t;
@@ -140,10 +140,10 @@ static inline unsigned long _pud_pfn(pud_t pud)
 }
 
 #define PGDIR_SHIFT     48
-#else /* CONFIG_PGTABLE_LEVELS > 2 */
+#else /* CONFIG_PGTABLE_LEVELS > 3 */
 #include <asm-generic/pgtable-nopud.h>
 #define PGDIR_SHIFT     30
-#endif /* CONFIG_PGTABLE_LEVELS > 2 */
+#endif /* CONFIG_PGTABLE_LEVELS > 3 */
 
 /* Size of region mapped by a page global directory */
 #define PGDIR_SIZE      (_AC(1, UL) << PGDIR_SHIFT)
