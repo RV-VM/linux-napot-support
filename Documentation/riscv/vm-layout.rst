@@ -97,3 +97,39 @@ RISC-V Linux Kernel SV48
    ffffffff00000000 |   -4    GB | ffffffff7fffffff |    2 GB | modules, BPF
    ffffffff80000000 |   -2    GB | ffffffffffffffff |    2 GB | kernel
   __________________|____________|__________________|_________|____________________________________________________________
+
+
+RISC-V Linux Kernel SV57
+------------------------
+
+::
+
+  ========================================================================================================================
+        Start addr    |   Offset   |     End addr     |  Size   | VM area description
+  ========================================================================================================================
+                      |            |                  |         |
+     0000000000000000 |    0       | 00ffffffffffffff |  64 PB  | user-space virtual memory, different per mm
+    __________________|____________|__________________|_________|___________________________________________________________
+                      |            |                  |         |
+     0100000000000000 |  +64    PB | feffffffffffffff | ~16M TB | ... huge, almost 64 bits wide hole of non-canonical
+                      |            |                  |         | virtual memory addresses up to the -64 PB
+                      |            |                  |         | starting offset of kernel mappings.
+    __________________|____________|__________________|_________|___________________________________________________________
+                                                                |
+                                                                | Kernel-space virtual memory, shared between all processes:
+    ____________________________________________________________|___________________________________________________________
+                      |            |                  |         |
+     ff00000000000000 |  -64    PB | ff1fffffffffffff |    8 PB | kasan
+     ff3bfffffee00000 |  -49    PB | ff3bfffffeffffff |    2 MB | fixmap
+     ff3bffffff000000 |  -49    PB | ff3bffffffffffff |   16 MB | PCI io
+     ff3c000000000000 |  -49    PB | ff3fffffffffffff |    1 PB | vmemmap
+     ff40000000000000 |  -48    PB | ff7fffffffffffff |   16 PB | vmalloc/ioremap space
+     ff80000000000000 |  -32    PB | fffffffeffffffff |   32 PB | direct mapping of all physical memory
+    __________________|____________|__________________|_________|____________________________________________________________
+                                                                |
+                                                                | Identical layout to the 39-bit one from here on:
+    ____________________________________________________________|____________________________________________________________
+                      |            |                  |         |
+     ffffffff00000000 |   -4    GB | ffffffff7fffffff |    2 GB | modules, BPF
+     ffffffff80000000 |   -2    GB | ffffffffffffffff |    2 GB | kernel
+    __________________|____________|__________________|_________|____________________________________________________________
