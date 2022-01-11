@@ -44,6 +44,8 @@ u64 satp_mode = SATP_MODE_32;
 #endif
 EXPORT_SYMBOL(satp_mode);
 
+static bool pgtable_l5_enabled = false;
+EXPORT_SYMBOL(pgtable_l5_enabled);
 bool pgtable_l4_enabled = IS_ENABLED(CONFIG_64BIT) && !IS_ENABLED(CONFIG_XIP_KERNEL) ?
 				true : false;
 EXPORT_SYMBOL(pgtable_l4_enabled);
